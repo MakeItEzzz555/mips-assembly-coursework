@@ -1,0 +1,134 @@
+.data
+ARRAY:     .space 40
+PROMPT:    .asciiz "Please enter 10 integers:\n"
+MSG1:      .asciiz " ["
+MSG2:      .asciiz " switches]"
+FINAL1:    .asciiz "It will take 9 passes with a total of "
+FINAL2:    .asciiz " switches\n"
+SPACE:     .asciiz " "
+NEWLINE:   .asciiz "\n"
+
+.text
+main:
+    jal INPUT
+    jal SORT
+    jal PRNSORT
+    jal OUTPUT
+    li  $v0, 10
+    syscall
+
+INPUT:
+    li  $v0, 4
+    la  $a0, PROMPT
+    syscall
+
+    li  $t0, 10
+    la  $t1, ARRAY
+
+LOOP_INPUT:
+    beq $t0, $zero, INPUT_DONE
+    li  $v0, 5
+    syscall
+    sw  $v0, 0($t1)
+    addi $t1, $t1, 4
+    addi $t0, $t0, -1
+    j   LOOP_INPUT
+
+INPUT_DONE:
+    jr  $ra
+
+SORT:
+    li  $s0, 0          # total switches
+    li  $t0, 9          # passes remaining (for 10 items)
+
+OUTER_LOOP:
+    beq $t0, $zero, SORT_DONE
+    li  $s1, 0          # switches this pass
+    la  $t2, ARRAY
+    li  $t1, 9          # comparisons this pass
+
+INNER_LOOP:
+    beq $t1, $zero, PASS_DONE
+    lw  $t3, 0($t2)
+    lw  $t4, 4($t2)
+    ble $t3, $t4, NO_SWAP
+    sw  $t4, 0($t2)
+    sw  $t3, 4($t2)
+    addi $s1, $s1, 1
+    addi $s0, $s0, 1
+
+NO_SWAP:
+    addi $t2, $t2, 4
+    addi $t1, $t1, -1
+    j   INNER_LOOP
+
+PASS_DONE:
+    # Print current array after this pass
+    li  $t5, 10
+    la  $t6, ARRAY
+
+PRINT_PASS_ARRAY:
+    beq $t5, $zero, PRINT_PASS_SUFFIX
+    lw  $a0, 0($t6)
+    li  $v0, 1
+    syscall
+    li  $v0, 4
+    la  $a0, SPACE
+    syscall
+    addi $t6, $t6, 4
+    addi $t5, $t5, -1
+    j   PRINT_PASS_ARRAY
+
+PRINT_PASS_SUFFIX:
+    li  $v0, 4
+    la  $a0, MSG1
+    syscall
+    move $a0, $s1
+    li  $v0, 1
+    syscall
+    li  $v0, 4
+    la  $a0, MSG2
+    syscall
+    li  $v0, 4
+    la  $a0, NEWLINE
+    syscall
+
+    addi $t0, $t0, -1
+    j   OUTER_LOOP
+
+SORT_DONE:
+    jr  $ra
+
+PRNSORT:
+    li  $t0, 10
+    la  $t1, ARRAY
+
+PRINT_LOOP:
+    beq $t0, $zero, PRINT_DONE
+    lw  $a0, 0($t1)
+    li  $v0, 1
+    syscall
+    li  $v0, 4
+    la  $a0, SPACE
+    syscall
+    addi $t1, $t1, 4
+    addi $t0, $t0, -1
+    j   PRINT_LOOP
+
+PRINT_DONE:
+    li  $v0, 4
+    la  $a0, NEWLINE
+    syscall
+    jr  $ra
+
+OUTPUT:
+    li  $v0, 4
+    la  $a0, FINAL1
+    syscall
+    move $a0, $s0
+    li  $v0, 1
+    syscall
+    li  $v0, 4
+    la  $a0, FINAL2
+    syscall
+    jr  $ra

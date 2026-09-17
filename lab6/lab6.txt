@@ -1,0 +1,36 @@
+	.data
+Key:        .word 2
+Plaintext:  .asciiz "thejunglewasfullofsnakes"
+Encrypted:  .space 100      # space for encrypted message
+
+.text
+main:
+    la $t0, Plaintext       # pointer to plaintext
+    la $t3, Encrypted       # pointer to encrypted text
+    lw $t1, Key             # load key
+
+loop:
+    lb $t2, 0($t0)          # load current character
+    beq $t2, $zero, done    # end of string?
+
+    add $t2, $t2, $t1       # shift character by key
+
+    li $t4, 122             # 'z'
+    ble $t2, $t4, store     # if <= 'z', no wrap needed
+    sub $t2, $t2, 26        # wrap around
+
+store:
+    sb $t2, 0($t3)          # store encrypted char
+    addi $t0, $t0, 1        # move to next char
+    addi $t3, $t3, 1
+    j loop
+
+done:
+    sb $zero, 0($t3)        # null terminate
+
+    la $a0, Encrypted       # print result
+    li $v0, 4
+    syscall
+
+    li $v0, 10              # exit
+    syscall
