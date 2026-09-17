@@ -1,5 +1,7 @@
 # MIPS Assembly Coursework
 
+> This coursework has been consolidated into [MakeItEzzz555/frederick-university-coursework](https://github.com/MakeItEzzz555/frederick-university-coursework). This repository is archived to preserve its history and URLs.
+
 Three independent Frederick University computer-architecture labs using MIPS assembly, registers, byte/word buffers, loops and simulator syscalls. Nearby architecture-course material establishes the context; a precise module code is not established.
 
 ## Contents
